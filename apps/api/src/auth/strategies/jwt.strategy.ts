@@ -20,10 +20,15 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     @InjectRepository(User)
     private userRepository: Repository<User>,
   ) {
+    const jwtSecret = configService.get('JWT_SECRET');
+    if (!jwtSecret) {
+      throw new Error('JWT_SECRET must be defined in environment variables');
+    }
+
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      secretOrKey: configService.get('JWT_SECRET') || 'default-secret-key',
+      secretOrKey: jwtSecret,
     });
   }
 

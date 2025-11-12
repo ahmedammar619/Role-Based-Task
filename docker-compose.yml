@@ -9,19 +9,9 @@ services:
     container_name: task-api
     ports:
       - "3000:3000"
+    env_file:
+      - ./apps/api/.env
     environment:
-      # Database Configuration
-      - DB_HOST=ju0a.your-database.de
-      - DB_PORT=5432
-      - DB_USERNAME=turbovets
-      - DB_PASSWORD=m3bGES_baQPht
-      - DB_NAME=turbovets
-      # JWT Configuration
-      - JWT_SECRET=your-super-secret-jwt-key-change-this-in-production-12345
-      - JWT_EXPIRES_IN=24h
-      # Application Configuration
-      - PORT=3000
-      - NODE_ENV=development
       # CORS Configuration
       - CORS_ORIGINS=http://localhost:4200,http://localhost,http://frontend
     networks:

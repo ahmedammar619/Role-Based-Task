@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://api.turbovits.ahmedammar.dev/api'
+  apiUrl: 'https://api.turbovets.ahmedammar.dev/api'
 };
