@@ -1,0 +1,26 @@
+{
+  "name": "task-management-system",
+  "version": "1.0.0",
+  "license": "MIT",
+  "scripts": {
+    "api:dev": "cd apps/api && npm run start:dev",
+    "api:build": "cd apps/api && npm run build",
+    "api:start": "cd apps/api && npm run start:prod",
+    "dashboard:dev": "cd apps/dashboard && npm start",
+    "dashboard:build": "cd apps/dashboard && npm run build",
+    "dashboard:serve": "cd apps/dashboard && npm run serve",
+    "test": "npm run test --workspaces",
+    "test:e2e": "npm run test:e2e --workspaces",
+    "install:all": "npm install && npm install --workspaces"
+  },
+  "workspaces": [
+    "apps/api",
+    "apps/dashboard",
+    "libs/data",
+    "libs/auth"
+  ],
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "typescript": "^5.3.0"
+  }
+}
