@@ -118,6 +118,24 @@ export class TasksService {
       throw new ForbiddenException('Viewers cannot update tasks');
     }
 
+    // Track what changed for audit log
+    const changes: string[] = [];
+    if (updateTaskDto.title !== undefined && updateTaskDto.title !== task.title) {
+      changes.push(`title changed to "${updateTaskDto.title}"`);
+    }
+    if (updateTaskDto.status !== undefined && updateTaskDto.status !== task.status) {
+      changes.push(`status changed from "${task.status}" to "${updateTaskDto.status}"`);
+    }
+    if (updateTaskDto.category !== undefined && updateTaskDto.category !== task.category) {
+      changes.push(`category changed from "${task.category}" to "${updateTaskDto.category}"`);
+    }
+    if (updateTaskDto.assignedToId !== undefined && updateTaskDto.assignedToId !== task.assignedToId) {
+      changes.push(`assignee changed`);
+    }
+    if (updateTaskDto.description !== undefined && updateTaskDto.description !== task.description) {
+      changes.push(`description updated`);
+    }
+
     // Update task
     Object.assign(task, updateTaskDto);
     await this.taskRepository.save(task);
@@ -132,13 +150,14 @@ export class TasksService {
       throw new NotFoundException('Task not found after update');
     }
 
-    // Create audit log
+    // Create audit log with detailed changes
+    const changeDetails = changes.length > 0 ? `: ${changes.join(', ')}` : '';
     await this.createAuditLog(
       user.id,
       AuditAction.UPDATE,
       'task',
-      task.id,
-      `Updated task: ${task.title}`,
+      updatedTask.id,
+      `Updated task "${updatedTask.title}"${changeDetails}`,
     );
 
     return updatedTask;
