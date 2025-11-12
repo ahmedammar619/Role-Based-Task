@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://api.turbovets.ahmedammar.dev/api'
+  apiUrl: 'https://role-based-task-production.up.railway.app/api'
 };
