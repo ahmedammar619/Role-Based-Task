@@ -1,15 +1,30 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { CdkDragDrop, DragDropModule, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 import { Subject, takeUntil } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../environments/environment';
 
 import { Task, TaskStatus, TaskCategory, CreateTaskDto, UpdateTaskDto } from '../../models/task.model';
 import { User, UserRole } from '../../models/user.model';
 import { TaskService } from '../../services/task.service';
 import { AuthService } from '../../services/auth.service';
 import { TaskFormComponent } from '../task-form/task-form.component';
+
+export interface AuditLog {
+  id: string;
+  userId: string;
+  user: User;
+  action: string;
+  resource: string;
+  resourceId?: string;
+  details?: string;
+  ipAddress?: string;
+  userAgent?: string;
+  createdAt: Date;
+}
 
 type SortOption = 'date' | 'title' | 'priority';
 
@@ -52,6 +67,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
   taskToDelete: Task | null = null;
   isDeleteModalOpen = false;
 
+  // Audit logs
+  auditLogs: AuditLog[] = [];
+  isAuditLogsOpen = false;
+  isLoadingAuditLogs = false;
+
   // Category options
   categoryOptions = [
     { value: 'all', label: 'All Categories' },
@@ -78,16 +98,17 @@ export class DashboardComponent implements OnInit, OnDestroy {
     return this.allTasks.length;
   }
 
-  get organizationName(): string {
-    if (!this.currentUser) {
-      return 'Independent';
-    }
-    return this.currentUser.organization?.name ?? 'Independent';
-  }
-
   get completionPercentage(): number {
     if (this.totalCount === 0) return 0;
     return Math.round((this.doneCount / this.totalCount) * 100);
+  }
+
+  // Get organization name
+  get organizationName(): string {
+    if (!this.currentUser?.organization) {
+      return this.currentUser?.organizationId || 'Independent';
+    }
+    return this.currentUser.organization.name;
   }
 
   // Role-based permissions
@@ -103,10 +124,15 @@ export class DashboardComponent implements OnInit, OnDestroy {
     return this.currentUser?.role === UserRole.OWNER || this.currentUser?.role === UserRole.ADMIN;
   }
 
+  get canViewAuditLogs(): boolean {
+    return this.currentUser?.role === UserRole.OWNER || this.currentUser?.role === UserRole.ADMIN;
+  }
+
   constructor(
     private taskService: TaskService,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private http: HttpClient
   ) {}
 
   ngOnInit(): void {
@@ -126,6 +152,16 @@ export class DashboardComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  // Keyboard shortcut: Option+X to open create task modal
+  @HostListener('window:keydown', ['$event'])
+  handleKeyboardEvent(event: KeyboardEvent): void {
+    // Option+X (or Alt+X on Windows)
+    if (event.altKey && event.key.toLowerCase() === 'x') {
+      event.preventDefault();
+      this.openCreateModal();
+    }
   }
 
   // Load tasks from API
@@ -388,6 +424,16 @@ export class DashboardComponent implements OnInit, OnDestroy {
     return colors[category];
   }
 
+  // Get role badge color
+  getRoleBadgeColor(role: UserRole): string {
+    const colors: Record<UserRole, string> = {
+      [UserRole.OWNER]: 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300',
+      [UserRole.ADMIN]: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300',
+      [UserRole.VIEWER]: 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
+    };
+    return colors[role];
+  }
+
   // Format date
   formatDate(date: Date | string | undefined): string {
     if (!date) return 'No due date';
@@ -395,8 +441,100 @@ export class DashboardComponent implements OnInit, OnDestroy {
     return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
   }
 
+  // Quick status change with checkbox
+  onQuickStatusChange(task: Task, newStatus: TaskStatus, event: Event): void {
+    event.stopPropagation();
+
+    if (!this.canEditTask) {
+      this.error = 'You do not have permission to update tasks';
+      setTimeout(() => this.error = null, 3000);
+      return;
+    }
+
+    const updateData: UpdateTaskDto = { status: newStatus };
+    this.taskService.updateTask(task.id, updateData).pipe(takeUntil(this.destroy$)).subscribe({
+      next: (updatedTask) => {
+        // Update task in allTasks array
+        const index = this.allTasks.findIndex(t => t.id === task.id);
+        if (index !== -1) {
+          this.allTasks[index] = updatedTask;
+        }
+        this.organizeTasks();
+      },
+      error: (error) => {
+        this.error = error.message || 'Failed to update task status';
+        setTimeout(() => this.error = null, 3000);
+      }
+    });
+  }
+
+  // Load audit logs
+  loadAuditLogs(): void {
+    if (!this.canViewAuditLogs) {
+      return;
+    }
+
+    this.isLoadingAuditLogs = true;
+    this.http.get<AuditLog[]>(`${environment.apiUrl}/audit-log`)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (logs) => {
+          this.auditLogs = logs;
+          this.isLoadingAuditLogs = false;
+        },
+        error: (error) => {
+          console.error('Error loading audit logs:', error);
+          this.isLoadingAuditLogs = false;
+        }
+      });
+  }
+
+  // Toggle audit logs panel
+  toggleAuditLogs(): void {
+    if (!this.canViewAuditLogs) {
+      this.error = 'You do not have permission to view audit logs';
+      setTimeout(() => this.error = null, 3000);
+      return;
+    }
+
+    this.isAuditLogsOpen = !this.isAuditLogsOpen;
+
+    if (this.isAuditLogsOpen && this.auditLogs.length === 0) {
+      this.loadAuditLogs();
+    }
+  }
+
+  // Format audit log timestamp
+  formatAuditDate(date: Date | string): string {
+    const d = new Date(date);
+    return d.toLocaleString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  }
+
+  // Get action badge color
+  getActionColor(action: string): string {
+    const colors: Record<string, string> = {
+      'create': 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300',
+      'read': 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300',
+      'update': 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300',
+      'delete': 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300',
+      'login': 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300',
+      'access_denied': 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300'
+    };
+    return colors[action] || 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300';
+  }
+
   // Track by function for ngFor
   trackByTaskId(index: number, task: Task): string {
     return task.id;
+  }
+
+  trackByAuditId(index: number, log: AuditLog): string {
+    return log.id;
   }
 }
