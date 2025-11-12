@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, HostListener } from '@angular/core';
+import { Component, OnInit, OnDestroy, HostListener, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -38,6 +38,8 @@ type SortOption = 'date' | 'title' | 'priority';
 export class DashboardComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
+  @ViewChild('searchInput') searchInput!: ElementRef<HTMLInputElement>;
+
   // User data
   currentUser: User | null = null;
   UserRole = UserRole;
@@ -53,6 +55,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
   isLoading = false;
   error: string | null = null;
   isDarkMode = false;
+  isCreatingTask = false;
+  isSavingTask = false;
+  isDeletingTask = false;
 
   // Filter and search
   selectedCategory: TaskCategory | 'all' = 'all';
@@ -105,10 +110,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   // Get organization name
   get organizationName(): string {
-    if (!this.currentUser?.organization) {
-      return this.currentUser?.organizationId || 'Independent';
+    if (this.currentUser?.organization?.name) {
+      return this.currentUser.organization.name;
     }
-    return this.currentUser.organization.name;
+    return 'Independent';
   }
 
   // Role-based permissions
@@ -154,14 +159,37 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  // Keyboard shortcut: Option+X to open create task modal
+  // Keyboard shortcuts
   @HostListener('window:keydown', ['$event'])
   handleKeyboardEvent(event: KeyboardEvent): void {
-    // Option+X (or Alt+X on Windows)
-    if (event.altKey && event.key.toLowerCase() === 'x') {
+    // Option+X or Alt+X to open create task modal
+    if ((event.altKey || event.metaKey) && event.key.toLowerCase() === 'x') {
       event.preventDefault();
       this.openCreateModal();
     }
+
+    // Cmd+K or Ctrl+K to focus search
+    if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
+      event.preventDefault();
+      this.focusSearch();
+    }
+
+    // Forward slash (/) to focus search
+    if (event.key === '/' && !this.isFormOpen && !this.isDeleteModalOpen && !this.isAuditLogsOpen) {
+      const target = event.target as HTMLElement;
+      // Only trigger if not already in an input field
+      if (target.tagName !== 'INPUT' && target.tagName !== 'TEXTAREA') {
+        event.preventDefault();
+        this.focusSearch();
+      }
+    }
+  }
+
+  // Focus on search input
+  focusSearch(): void {
+    setTimeout(() => {
+      this.searchInput?.nativeElement?.focus();
+    }, 0);
   }
 
   // Load tasks from API
@@ -310,6 +338,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   onTaskSave(data: CreateTaskDto | { id: string; data: UpdateTaskDto }): void {
     if ('id' in data) {
       // Update existing task
+      this.isSavingTask = true;
       this.taskService.updateTask(data.id, data.data).pipe(takeUntil(this.destroy$)).subscribe({
         next: (updatedTask) => {
           const index = this.allTasks.findIndex(t => t.id === data.id);
@@ -317,23 +346,28 @@ export class DashboardComponent implements OnInit, OnDestroy {
             this.allTasks[index] = updatedTask;
           }
           this.organizeTasks();
+          this.isSavingTask = false;
           this.closeTaskForm();
         },
         error: (error) => {
           this.error = error.message || 'Failed to update task';
+          this.isSavingTask = false;
           setTimeout(() => this.error = null, 3000);
         }
       });
     } else {
       // Create new task
+      this.isCreatingTask = true;
       this.taskService.createTask(data).pipe(takeUntil(this.destroy$)).subscribe({
         next: (newTask) => {
           this.allTasks.push(newTask);
           this.organizeTasks();
+          this.isCreatingTask = false;
           this.closeTaskForm();
         },
         error: (error) => {
           this.error = error.message || 'Failed to create task';
+          this.isCreatingTask = false;
           setTimeout(() => this.error = null, 3000);
         }
       });
@@ -361,15 +395,18 @@ export class DashboardComponent implements OnInit, OnDestroy {
   deleteTask(): void {
     if (!this.taskToDelete) return;
 
+    this.isDeletingTask = true;
     const taskId = this.taskToDelete.id;
     this.taskService.deleteTask(taskId).pipe(takeUntil(this.destroy$)).subscribe({
       next: () => {
         this.allTasks = this.allTasks.filter(t => t.id !== taskId);
         this.organizeTasks();
+        this.isDeletingTask = false;
         this.closeDeleteModal();
       },
       error: (error) => {
         this.error = error.message || 'Failed to delete task';
+        this.isDeletingTask = false;
         setTimeout(() => this.error = null, 3000);
         this.closeDeleteModal();
       }

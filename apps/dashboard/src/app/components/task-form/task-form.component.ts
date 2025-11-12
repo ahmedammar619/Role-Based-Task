@@ -13,6 +13,7 @@ import { Task, TaskStatus, TaskCategory, CreateTaskDto, UpdateTaskDto } from '..
 export class TaskFormComponent implements OnInit {
   @Input() task: Task | null = null;
   @Input() isOpen = false;
+  @Input() isSaving = false;
   @Output() close = new EventEmitter<void>();
   @Output() save = new EventEmitter<CreateTaskDto | { id: string; data: UpdateTaskDto }>();
 
