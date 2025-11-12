@@ -1,0 +1,155 @@
+<div *ngIf="isOpen" class="fixed inset-0 z-50 overflow-y-auto" (click)="onClose()">
+  <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+    <!-- Background overlay -->
+    <div class="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75 dark:bg-gray-900 dark:bg-opacity-75"></div>
+
+    <!-- Modal panel -->
+    <div class="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full"
+         (click)="$event.stopPropagation()">
+
+      <!-- Header -->
+      <div class="bg-gradient-to-r from-blue-500 to-blue-600 dark:from-blue-600 dark:to-blue-700 px-6 py-4">
+        <div class="flex items-center justify-between">
+          <h3 class="text-lg font-semibold text-white">
+            {{ isEditMode ? 'Edit Task' : 'Create New Task' }}
+          </h3>
+          <button type="button"
+                  (click)="onClose()"
+                  class="text-white hover:text-gray-200 transition-colors">
+            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Form -->
+      <form [formGroup]="taskForm" (ngSubmit)="onSubmit()">
+        <div class="bg-white dark:bg-gray-800 px-6 py-5">
+          <div class="space-y-4">
+
+            <!-- Title -->
+            <div>
+              <label for="title" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Title <span class="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                id="title"
+                formControlName="title"
+                placeholder="Enter task title"
+                class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-all"
+                [class.border-red-500]="titleControl?.invalid && titleControl?.touched"
+              />
+              <p *ngIf="titleControl?.invalid && titleControl?.touched"
+                 class="mt-1 text-sm text-red-500">
+                <span *ngIf="titleControl?.errors?.['required']">Title is required</span>
+                <span *ngIf="titleControl?.errors?.['minlength']">Title must be at least 3 characters</span>
+              </p>
+            </div>
+
+            <!-- Description -->
+            <div>
+              <label for="description" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Description
+              </label>
+              <textarea
+                id="description"
+                formControlName="description"
+                rows="3"
+                placeholder="Enter task description (optional)"
+                class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-all resize-none"
+              ></textarea>
+            </div>
+
+            <!-- Status and Category Row -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+
+              <!-- Status -->
+              <div>
+                <label for="status" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Status <span class="text-red-500">*</span>
+                </label>
+                <select
+                  id="status"
+                  formControlName="status"
+                  class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-all"
+                >
+                  <option *ngFor="let status of taskStatuses" [value]="status.value">
+                    {{ status.label }}
+                  </option>
+                </select>
+              </div>
+
+              <!-- Category -->
+              <div>
+                <label for="category" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Category <span class="text-red-500">*</span>
+                </label>
+                <select
+                  id="category"
+                  formControlName="category"
+                  class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-all"
+                >
+                  <option *ngFor="let category of taskCategories" [value]="category.value">
+                    {{ category.label }}
+                  </option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Due Date and Assignee Row -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+
+              <!-- Due Date -->
+              <div>
+                <label for="dueDate" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Due Date
+                </label>
+                <input
+                  type="date"
+                  id="dueDate"
+                  formControlName="dueDate"
+                  class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-all"
+                />
+              </div>
+
+              <!-- Assignee ID -->
+              <div>
+                <label for="assignedToId" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Assignee ID
+                </label>
+                <input
+                  type="text"
+                  id="assignedToId"
+                  formControlName="assignedToId"
+                  placeholder="Enter assignee ID (optional)"
+                  class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-all"
+                />
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="bg-gray-50 dark:bg-gray-900 px-6 py-4 flex flex-col-reverse sm:flex-row sm:justify-end gap-3">
+          <button
+            type="button"
+            (click)="onClose()"
+            class="w-full sm:w-auto px-6 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 font-medium transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            [disabled]="taskForm.invalid"
+            class="w-full sm:w-auto px-6 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-colors"
+          >
+            {{ isEditMode ? 'Update Task' : 'Create Task' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
