@@ -8,7 +8,7 @@ import {
   Get,
   UseGuards,
 } from '@nestjs/common';
-import { Request } from 'express';
+import type { Request } from 'express';
 import { AuthService } from './auth.service';
 import { LoginDto, RegisterDto } from './dto';
 import { Public } from './decorators/public.decorator';

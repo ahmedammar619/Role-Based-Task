@@ -38,7 +38,7 @@ export class OrganizationsService {
     });
   }
 
-  async findOne(id: string): Promise<Organization> {
+  async findOne(id: string): Promise<Organization | null> {
     return this.organizationRepository.findOne({
       where: { id },
       relations: ['parent', 'children', 'users'],

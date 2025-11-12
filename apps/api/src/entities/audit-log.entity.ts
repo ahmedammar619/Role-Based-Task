@@ -39,7 +39,7 @@ export class AuditLog {
   @Column()
   resource: string; // e.g., 'task', 'user', 'organization'
 
-  @Column({ nullable: true })
+  @Column({ type: 'varchar', nullable: true })
   resourceId: string; // ID of the resource being accessed
 
   @Column({ type: 'text', nullable: true })

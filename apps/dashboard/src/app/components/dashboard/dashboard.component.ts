@@ -26,6 +26,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   // User data
   currentUser: User | null = null;
   UserRole = UserRole;
+  TaskStatus = TaskStatus;
 
   // Tasks data
   allTasks: Task[] = [];

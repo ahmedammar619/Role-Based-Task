@@ -64,7 +64,7 @@ export class TasksService {
       user.id,
       AuditAction.READ,
       'task',
-      null,
+      undefined,
       `Listed tasks`,
     );
 
@@ -201,8 +201,8 @@ export class TasksService {
     userId: string,
     action: AuditAction,
     resource: string,
-    resourceId: string,
-    details: string,
+    resourceId?: string,
+    details?: string,
   ): Promise<void> {
     const auditLog = this.auditLogRepository.create({
       userId,

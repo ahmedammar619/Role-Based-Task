@@ -10,7 +10,8 @@ import {
 } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
-import { UserRole } from '../../models/user.model';
+import { Organization, UserRole } from '../../models/user.model';
+import { OrganizationService } from '../../services/organization.service';
 
 @Component({
   selector: 'app-register',
@@ -22,7 +23,9 @@ import { UserRole } from '../../models/user.model';
 export class RegisterComponent implements OnInit {
   registerForm: FormGroup;
   errorMessage: string = '';
+  organizationLoadError: string = '';
   isLoading: boolean = false;
+  isOrganizationsLoading: boolean = false;
 
   roles = [
     { value: UserRole.OWNER, label: 'Owner' },
@@ -30,16 +33,12 @@ export class RegisterComponent implements OnInit {
     { value: UserRole.VIEWER, label: 'Viewer' },
   ];
 
-  // Mock organizations - In real app, fetch from API
-  organizations = [
-    { id: '1', name: 'Organization A' },
-    { id: '2', name: 'Organization B' },
-    { id: '3', name: 'Organization C' },
-  ];
+  organizations: Organization[] = [];
 
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
+    private organizationService: OrganizationService,
     private router: Router
   ) {
     this.registerForm = this.fb.group(
@@ -57,7 +56,30 @@ export class RegisterComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    // Component initialization logic if needed
+    this.loadOrganizations();
+  }
+
+  private loadOrganizations(): void {
+    this.isOrganizationsLoading = true;
+    this.organizationLoadError = '';
+
+    this.organizationService.getOrganizations().subscribe({
+      next: (organizations) => {
+        this.organizations = organizations;
+        this.isOrganizationsLoading = false;
+        if (organizations.length === 1) {
+          this.registerForm.patchValue({
+            organizationId: organizations[0].id,
+          });
+        }
+      },
+      error: (error) => {
+        this.isOrganizationsLoading = false;
+        this.organizationLoadError =
+          error.message || 'Failed to load organizations';
+        console.error('Failed to load organizations:', error);
+      },
+    });
   }
 
   // Custom validator for password matching

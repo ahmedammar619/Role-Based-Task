@@ -233,7 +233,7 @@
           #todoList="cdkDropList"
           [cdkDropListData]="todoTasks"
           [cdkDropListConnectedTo]="[inProgressList, doneList]"
-          (cdkDropListDropped)="onDrop($event, 'todo')"
+          (cdkDropListDropped)="onDrop($event, TaskStatus.TODO)"
           class="space-y-3 min-h-[200px]"
         >
           <div
@@ -320,7 +320,7 @@
           #inProgressList="cdkDropList"
           [cdkDropListData]="inProgressTasks"
           [cdkDropListConnectedTo]="[todoList, doneList]"
-          (cdkDropListDropped)="onDrop($event, 'in_progress')"
+          (cdkDropListDropped)="onDrop($event, TaskStatus.IN_PROGRESS)"
           class="space-y-3 min-h-[200px]"
         >
           <div
@@ -407,7 +407,7 @@
           #doneList="cdkDropList"
           [cdkDropListData]="doneTasks"
           [cdkDropListConnectedTo]="[todoList, inProgressList]"
-          (cdkDropListDropped)="onDrop($event, 'done')"
+          (cdkDropListDropped)="onDrop($event, TaskStatus.DONE)"
           class="space-y-3 min-h-[200px]"
         >
           <div
