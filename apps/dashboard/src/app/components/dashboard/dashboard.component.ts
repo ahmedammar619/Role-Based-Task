@@ -491,16 +491,19 @@ export class DashboardComponent implements OnInit, OnDestroy {
     const updateData: UpdateTaskDto = { status: newStatus };
     this.taskService.updateTask(task.id, updateData).pipe(takeUntil(this.destroy$)).subscribe({
       next: (updatedTask) => {
-        // Update task in allTasks array
+        // Replace the task in allTasks array with the complete updated task from backend
         const index = this.allTasks.findIndex(t => t.id === task.id);
         if (index !== -1) {
           this.allTasks[index] = updatedTask;
         }
+        // Re-organize tasks to reflect the status change
         this.organizeTasks();
       },
       error: (error) => {
         this.error = error.message || 'Failed to update task status';
         setTimeout(() => this.error = null, 3000);
+        // Reload all tasks to ensure consistency
+        this.loadTasks();
       }
     });
   }

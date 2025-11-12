@@ -120,7 +120,17 @@ export class TasksService {
 
     // Update task
     Object.assign(task, updateTaskDto);
-    const updatedTask = await this.taskRepository.save(task);
+    await this.taskRepository.save(task);
+
+    // Reload task with all relations to ensure complete data is returned
+    const updatedTask = await this.taskRepository.findOne({
+      where: { id },
+      relations: ['createdBy', 'assignedTo', 'organization'],
+    });
+
+    if (!updatedTask) {
+      throw new NotFoundException('Task not found after update');
+    }
 
     // Create audit log
     await this.createAuditLog(

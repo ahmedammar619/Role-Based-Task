@@ -24,6 +24,7 @@ export interface Task {
   assignedToId?: string;
   createdBy?: any;
   assignedTo?: any;
+  organization?: any;
   createdAt: Date;
   updatedAt: Date;
 }

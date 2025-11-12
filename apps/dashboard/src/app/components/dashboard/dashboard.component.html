@@ -314,9 +314,18 @@
               </div>
 
               <div class="flex items-center justify-between pt-2 border-t border-gray-200 dark:border-gray-600">
-                <div class="text-xs text-gray-500 dark:text-gray-400">
-                  <span *ngIf="task.assignedTo">Assigned to: {{ task.assignedTo.username }}</span>
-                  <span *ngIf="!task.assignedTo">Unassigned</span>
+                <div class="flex flex-col gap-1 text-xs">
+                  <div class="flex items-center gap-1">
+                    <span class="text-gray-500 dark:text-gray-400">Created by:</span>
+                    <span *ngIf="task.createdBy" class="px-2 py-0.5 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 rounded-full font-medium">
+                      {{ task.createdBy.username }}
+                    </span>
+                    <span *ngIf="!task.createdBy" class="text-gray-500 dark:text-gray-400">Unknown</span>
+                  </div>
+                  <div class="flex items-center gap-1 text-gray-500 dark:text-gray-400">
+                    <span *ngIf="task.assignedTo">Assigned to: {{ task.assignedTo.username }}</span>
+                    <span *ngIf="!task.assignedTo">Unassigned</span>
+                  </div>
                 </div>
                 <div class="flex items-center space-x-2">
                   <button
@@ -426,9 +435,18 @@
               </div>
 
               <div class="flex items-center justify-between pt-2 border-t border-gray-200 dark:border-gray-600">
-                <div class="text-xs text-gray-500 dark:text-gray-400">
-                  <span *ngIf="task.assignedTo">Assigned to: {{ task.assignedTo.username }}</span>
-                  <span *ngIf="!task.assignedTo">Unassigned</span>
+                <div class="flex flex-col gap-1 text-xs">
+                  <div class="flex items-center gap-1">
+                    <span class="text-gray-500 dark:text-gray-400">Created by:</span>
+                    <span *ngIf="task.createdBy" class="px-2 py-0.5 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 rounded-full font-medium">
+                      {{ task.createdBy.username }}
+                    </span>
+                    <span *ngIf="!task.createdBy" class="text-gray-500 dark:text-gray-400">Unknown</span>
+                  </div>
+                  <div class="flex items-center gap-1 text-gray-500 dark:text-gray-400">
+                    <span *ngIf="task.assignedTo">Assigned to: {{ task.assignedTo.username }}</span>
+                    <span *ngIf="!task.assignedTo">Unassigned</span>
+                  </div>
                 </div>
                 <div class="flex items-center space-x-2">
                   <button
@@ -538,9 +556,18 @@
               </div>
 
               <div class="flex items-center justify-between pt-2 border-t border-gray-200 dark:border-gray-600">
-                <div class="text-xs text-gray-500 dark:text-gray-400">
-                  <span *ngIf="task.assignedTo">Assigned to: {{ task.assignedTo.username }}</span>
-                  <span *ngIf="!task.assignedTo">Unassigned</span>
+                <div class="flex flex-col gap-1 text-xs">
+                  <div class="flex items-center gap-1">
+                    <span class="text-gray-500 dark:text-gray-400">Created by:</span>
+                    <span *ngIf="task.createdBy" class="px-2 py-0.5 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 rounded-full font-medium">
+                      {{ task.createdBy.username }}
+                    </span>
+                    <span *ngIf="!task.createdBy" class="text-gray-500 dark:text-gray-400">Unknown</span>
+                  </div>
+                  <div class="flex items-center gap-1 text-gray-500 dark:text-gray-400">
+                    <span *ngIf="task.assignedTo">Assigned to: {{ task.assignedTo.username }}</span>
+                    <span *ngIf="!task.assignedTo">Unassigned</span>
+                  </div>
                 </div>
                 <div class="flex items-center space-x-2">
                   <button

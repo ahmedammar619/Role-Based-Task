@@ -60,32 +60,43 @@ export class AuthService {
 
     await this.userRepository.save(user);
 
+    // Load user with organization relation
+    const userWithOrg = await this.userRepository.findOne({
+      where: { id: user.id },
+      relations: ['organization'],
+    });
+
+    if (!userWithOrg) {
+      throw new Error('Failed to load user after registration');
+    }
+
     // Generate JWT token
     const payload: JwtPayload = {
-      sub: user.id,
-      username: user.username,
-      role: user.role,
-      organizationId: user.organizationId,
+      sub: userWithOrg.id,
+      username: userWithOrg.username,
+      role: userWithOrg.role,
+      organizationId: userWithOrg.organizationId,
     };
 
     const access_token = this.jwtService.sign(payload);
 
     // Create audit log
     await this.createAuditLog(
-      user.id,
+      userWithOrg.id,
       AuditAction.CREATE,
       'user',
-      user.id,
+      userWithOrg.id,
       'User registered',
     );
 
     return {
       access_token,
       user: {
-        id: user.id,
-        username: user.username,
-        role: user.role,
-        organizationId: user.organizationId,
+        id: userWithOrg.id,
+        username: userWithOrg.username,
+        role: userWithOrg.role,
+        organizationId: userWithOrg.organizationId,
+        organization: userWithOrg.organization,
       },
     };
   }
