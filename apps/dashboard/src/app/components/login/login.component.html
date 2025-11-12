@@ -1,15 +1,17 @@
-<div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 py-12 px-4 sm:px-6 lg:px-8">
-  <div class="max-w-md w-full space-y-8">
-    <div>
-      <h2 class="mt-6 text-center text-4xl font-extrabold text-gray-900">
-        Welcome Back
-      </h2>
-      <p class="mt-2 text-center text-sm text-gray-600">
-        Sign in to your account
-      </p>
+<div class="min-h-screen relative flex items-center justify-center bg-gradient-to-br from-blue-950 via-slate-900 to-red-900 py-12 px-4 sm:px-6 lg:px-8 overflow-hidden">
+  <div class="absolute inset-0 opacity-30 pointer-events-none">
+    <!-- <img src="/hero.svg" alt="Hero background" class="w-full h-full object-cover"> -->
+  </div>
+  <div class="relative max-w-xl w-full space-y-8">
+    <div class="text-center space-y-4">
+      <div>
+        <h2 class="text-4xl font-extrabold text-white tracking-wide">
+          Welcome Back, Hero
+        </h2>
+      </div>
     </div>
 
-    <div class="bg-white rounded-xl shadow-2xl p-8">
+    <div class="bg-white/95 backdrop-blur-lg rounded-2xl shadow-2xl p-8 border border-white/30">
       <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="space-y-6">
         <!-- Error Message -->
         <div *ngIf="errorMessage" class="bg-red-50 border-l-4 border-red-500 p-4 rounded-md">
@@ -76,9 +78,9 @@
           <button
             type="submit"
             [disabled]="isLoading"
-            class="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed"
+            class="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-semibold rounded-lg text-white bg-gradient-to-r from-blue-600 via-white/10 to-red-600 hover:from-blue-500 hover:to-red-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-400 transition duration-150 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <span *ngIf="!isLoading">Sign in</span>
+            <span *ngIf="!isLoading" class="text-black font-bold text-lg">Sign in</span>
             <span *ngIf="isLoading" class="flex items-center">
               <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -92,9 +94,9 @@
 
       <!-- Register Link -->
       <div class="mt-6 text-center">
-        <p class="text-sm text-gray-600">
+        <p class="text-sm text-gray-700">
           Don't have an account?
-          <a routerLink="/register" class="font-medium text-indigo-600 hover:text-indigo-500 transition duration-150 ease-in-out">
+          <a routerLink="/register" class="font-medium text-blue-600 hover:text-red-500 transition duration-150 ease-in-out">
             Sign up
           </a>
         </p>

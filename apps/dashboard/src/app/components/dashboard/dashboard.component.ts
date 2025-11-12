@@ -78,6 +78,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
     return this.allTasks.length;
   }
 
+  get organizationName(): string {
+    if (!this.currentUser) {
+      return 'Independent';
+    }
+    return this.currentUser.organization?.name ?? 'Independent';
+  }
+
   get completionPercentage(): number {
     if (this.totalCount === 0) return 0;
     return Math.round((this.doneCount / this.totalCount) * 100);
@@ -386,16 +393,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
     if (!date) return 'No due date';
     const d = new Date(date);
     return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-  }
-
-  // Get role badge color
-  getRoleBadgeColor(role: UserRole): string {
-    const colors: Record<UserRole, string> = {
-      [UserRole.OWNER]: 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300',
-      [UserRole.ADMIN]: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300',
-      [UserRole.VIEWER]: 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
-    };
-    return colors[role];
   }
 
   // Track by function for ngFor
