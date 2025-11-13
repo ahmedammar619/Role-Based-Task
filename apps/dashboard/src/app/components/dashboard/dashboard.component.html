@@ -805,4 +805,25 @@
       </div>
     </div>
   </div>
+
+  <!-- Chatbot Floating Button -->
+  <button
+    *ngIf="!isChatbotOpen"
+    (click)="toggleChatbot()"
+    class="fixed bottom-6 right-6 w-16 h-16 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-full shadow-2xl hover:shadow-3xl hover:scale-110 transition-all duration-300 flex items-center justify-center z-40 group"
+    title="Open AI Assistant"
+  >
+    <svg class="w-8 h-8 group-hover:rotate-12 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+    </svg>
+    <!-- <span class="absolute -top-1 -right-1 w-4 h-4 bg-green-500 border-2 border-white rounded-full animate-pulse"></span> -->
+  </button>
+
+  <!-- Chatbot Component -->
+  <app-chatbot
+    *ngIf="isChatbotOpen"
+    [tasks]="allTasks"
+    [userName]="currentUser?.username || 'User'"
+    (close)="closeChatbot()"
+  ></app-chatbot>
 </div>

@@ -223,9 +223,12 @@ npm test             # Karma tests
 
 **Security Improvements:**
 - JWT refresh tokens for better security
-- CSRF protection for sensitive operations
 - Rate limiting on auth endpoints
 - RBAC caching to reduce DB queries
+- Complete Libs/ with reusable RBAC utils
+- Add drag and drop feature to the UI
+- Add email/sms notification to user
+
 
 **Advanced Features:**
 - Role delegation (admins creating custom roles)

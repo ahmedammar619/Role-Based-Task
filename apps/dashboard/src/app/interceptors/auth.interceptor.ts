@@ -4,6 +4,7 @@ import { AuthService } from '../services/auth.service';
 import { catchError } from 'rxjs/operators';
 import { throwError } from 'rxjs';
 import { Router } from '@angular/router';
+import { environment } from '../../environments/environment';
 
 /**
  * HTTP Interceptor to add JWT token to all outgoing requests
@@ -29,8 +30,8 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   // Handle the request and catch any 401 errors
   return next(authReq).pipe(
     catchError((error) => {
-      // If we get a 401 Unauthorized response, logout and redirect to login
-      if (error.status === 401) {
+      // Only logout if the 401 is from our own backend API (not external APIs like Gemini)
+      if (error.status === 401 && error.url && error.url.startsWith(environment.apiUrl)) {
         authService.logout();
         router.navigate(['/login']);
       }

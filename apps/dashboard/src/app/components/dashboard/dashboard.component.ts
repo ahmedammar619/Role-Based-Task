@@ -12,6 +12,7 @@ import { User, UserRole } from '../../models/user.model';
 import { TaskService } from '../../services/task.service';
 import { AuthService } from '../../services/auth.service';
 import { TaskFormComponent } from '../task-form/task-form.component';
+import { ChatbotComponent } from '../chatbot/chatbot.component';
 
 export interface AuditLog {
   id: string;
@@ -31,7 +32,7 @@ type SortOption = 'date' | 'title' | 'priority';
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, FormsModule, DragDropModule, TaskFormComponent],
+  imports: [CommonModule, FormsModule, DragDropModule, TaskFormComponent, ChatbotComponent],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css']
 })
@@ -75,6 +76,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
   // Audit logs
   auditLogs: AuditLog[] = [];
   isAuditLogsOpen = false;
+
+  // Chatbot
+  isChatbotOpen = false;
   isLoadingAuditLogs = false;
 
   // Category options
@@ -542,6 +546,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
     if (this.isAuditLogsOpen && this.auditLogs.length === 0) {
       this.loadAuditLogs();
     }
+  }
+
+  toggleChatbot(): void {
+    this.isChatbotOpen = !this.isChatbotOpen;
+  }
+
+  closeChatbot(): void {
+    this.isChatbotOpen = false;
   }
 
   // Format audit log timestamp

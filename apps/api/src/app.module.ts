@@ -9,6 +9,7 @@ import { AuthModule } from './auth/auth.module';
 import { TasksModule } from './tasks/tasks.module';
 import { AuditModule } from './audit/audit.module';
 import { OrganizationsModule } from './organizations/organizations.module';
+import { ChatbotModule } from './chatbot/chatbot.module';
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 
 @Module({
@@ -39,6 +40,7 @@ import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
     TasksModule,
     AuditModule,
     OrganizationsModule,
+    ChatbotModule,
   ],
   controllers: [AppController],
   providers: [
